@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04131A6B1621A0F900C7F083 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04131A6A1621A0F900C7F083 /* Carbon.framework */; };
 		04D46DCE1620C4B9000A46E3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04D46DCD1620C4B9000A46E3 /* Cocoa.framework */; };
 		04D46DD81620C4B9000A46E3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 04D46DD61620C4B9000A46E3 /* InfoPlist.strings */; };
 		04D46DDA1620C4B9000A46E3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D46DD91620C4B9000A46E3 /* main.m */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		04131A6A1621A0F900C7F083 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		04D46DC91620C4B9000A46E3 /* butter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = butter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04D46DCD1620C4B9000A46E3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		04D46DD01620C4B9000A46E3 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -40,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04131A6B1621A0F900C7F083 /* Carbon.framework in Frameworks */,
 				04D46DCE1620C4B9000A46E3 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -69,6 +72,7 @@
 		04D46DCC1620C4B9000A46E3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				04131A6A1621A0F900C7F083 /* Carbon.framework */,
 				04D46DCD1620C4B9000A46E3 /* Cocoa.framework */,
 				04D46DCF1620C4B9000A46E3 /* Other Frameworks */,
 			);
@@ -305,6 +309,7 @@
 				04D46DE91620C4B9000A46E3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
