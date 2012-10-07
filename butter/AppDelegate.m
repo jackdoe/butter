@@ -77,7 +77,7 @@ OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unu
                                          defaultButton:@"Quit"
                                        alternateButton:nil
                                            otherButton:nil
-                             informativeTextWithFormat:@"sorry but you will have to click \"Enable access for assistive devices\" at the bottom left corner of Accessibility Settings, in order to use Butter. thanks\n"];
+                             informativeTextWithFormat:@"Sorry but, in order to use Butter,\nyou will have to enable \"Enable access for assistive devices\" at the bottom left corner of Accessibility Settings\n"];
         [alert runModal];
     }
     _axui = AXUIElementCreateSystemWide();
