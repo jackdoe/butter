@@ -2,6 +2,13 @@
 
 make sure that you have enabled "Settings -> Accessibility -> Enable access for assistive devices"
 
+![settings](http://img821.imageshack.us/img821/9954/settingswx.png)
+
+## download && install
+
++ [download](https://github.com/downloads/jackdoe/butter/butter.zip) (requires MacOSX 1.6 or greater)
++ install: just unzip and start :)
+
 ## hotkeys
 
 + cmd + alt + *left*: move the active window to the *left* half of the screen
