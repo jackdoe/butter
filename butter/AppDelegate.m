@@ -71,6 +71,15 @@ OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unu
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
+    if(!AXAPIEnabled()){
+        [[NSWorkspace sharedWorkspace] openFile:@"/System/Library/PreferencePanes/UniversalAccessPref.prefPane"];
+        NSAlert *alert = [NSAlert alertWithMessageText:@"Settings modification required(bang! unexpected eh?)"
+                                         defaultButton:@"Quit"
+                                       alternateButton:nil
+                                           otherButton:nil
+                             informativeTextWithFormat:@"sorry but you will have to click \"Enable access for assistive devices\" at the bottom left corner of Accessibility Settings, in order to use Butter. thanks\n"];
+        [alert runModal];
+    }
     _axui = AXUIElementCreateSystemWide();
     full = [[NSScreen mainScreen] frame];
     up = down = left = right = full;
