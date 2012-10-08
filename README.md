@@ -22,7 +22,7 @@ make sure that you have enabled "Settings -> Accessibility -> Enable access for 
 
 ## screen shots
 
-+ full screen (cmd + alt + f) ![full screen](http://img42.imageshack.us/img42/6432/screenshot20121007at315.png)
++ full screen (cmd + alt + up + up) ![full screen](http://img42.imageshack.us/img42/6432/screenshot20121007at315.png)
 + horizontal (cmd + alt + up or down) ![horizontal split](http://img9.imageshack.us/img9/6432/screenshot20121007at315.png)
 + vertical (cmd + alt + left or right) ![vertical split](http://img13.imageshack.us/img13/6432/screenshot20121007at315.png)
 + aa...vertival + horizontal ![vertical and horizontal split](http://img90.imageshack.us/img90/6880/screenshot20121008at951.png)
