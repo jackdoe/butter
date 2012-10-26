@@ -148,7 +148,7 @@ NSRect split(NSRect f,int position) {
 
     menu = [[NSMenu alloc] init];
     item = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    [menu addItemWithTitle:@"quit" action:@selector(quit:) keyEquivalent:@""];
+    [menu addItemWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [item setMenu:menu];
     [item setImage:[NSImage imageNamed:@"status-icon"]];
     [self registerHotKeys];
