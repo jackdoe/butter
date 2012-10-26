@@ -26,3 +26,24 @@ make sure that you have enabled "Settings -> Accessibility -> Enable access for 
 + horizontal (cmd + alt + up or down) ![horizontal split](http://img9.imageshack.us/img9/6432/screenshot20121007at315.png)
 + vertical (cmd + alt + left or right) ![vertical split](http://img13.imageshack.us/img13/6432/screenshot20121007at315.png)
 + aa...vertival + horizontal ![vertical and horizontal split](http://img90.imageshack.us/img90/6880/screenshot20121008at951.png)
+
+
+## license
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
