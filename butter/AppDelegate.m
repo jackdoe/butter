@@ -7,49 +7,107 @@
 #define LEFT 123
 #define RIGHT 124
 #define DOWN 125
+#define DOWN_LEFT (DOWN * LEFT)
+#define DOWN_RIGHT (DOWN * RIGHT)
 #define UP 126
+#define UP_LEFT (UP * LEFT)
+#define UP_RIGHT (UP * RIGHT)
 #define APPROX 50
-static NSRect up,down,left,right,full,up_left,up_right,down_left,down_right;
 static AXUIElementRef _axui;
 static unsigned int processed_key = 0;
 static NSTimeInterval processed_stamp = 0;
-void move(NSRect *to, NSRect *second) {
+
+NSRect split(NSRect f,int position) {
+    switch(position) {
+        case UP:
+            return NSMakeRect(f.origin.x, f.origin.y, f.size.width, f.size.height/2.0f);
+            break;
+        case DOWN:
+            return NSMakeRect(f.origin.x, f.size.height/2.0f, f.size.width, f.size.height/2.0f);
+            break;
+        case LEFT:
+            return NSMakeRect(f.origin.x, f.origin.y, f.size.width/2.0f, f.size.height);
+            break;
+        case RIGHT:
+            return NSMakeRect(f.size.width/2.0f, f.origin.y, f.size.width/2.0f, f.size.height);
+            break;
+        case DOWN_LEFT:
+            return split(split(f, DOWN),LEFT);
+            break;
+        case DOWN_RIGHT:
+            return split(split(f, DOWN),RIGHT);
+            break;
+        case UP_LEFT:
+            return split(split(f, UP),LEFT);
+            break;
+        case UP_RIGHT:
+            return split(split(f, UP),RIGHT);
+            break;
+    }
+    return NSZeroRect;
+}
+
+CFTypeRef current_window(void) {
     AXUIElementRef app;
     CFTypeRef win;
     AXUIElementCopyAttributeValue(_axui,(CFStringRef)kAXFocusedApplicationAttribute,(CFTypeRef*)&app);
     if(AXUIElementCopyAttributeValue(app,(CFStringRef)NSAccessibilityFocusedWindowAttribute,&win) == kAXErrorSuccess) {
         if(CFGetTypeID(win) == AXUIElementGetTypeID()) {
-            if (second) {
-                CFTypeRef _current;
-                NSRect current = NSZeroRect;
-
-                if (AXUIElementCopyAttributeValue(win,(CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef*)&_current) == kAXErrorSuccess &&
-                    AXValueGetType(_current) == kAXValueCGSizeType){
-                      AXValueGetValue(_current, kAXValueCGSizeType, (void*)&current.size);
-                }
-
-                if (AXUIElementCopyAttributeValue(win,(CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef*)&_current) == kAXErrorSuccess &&
-                    AXValueGetType(_current) == kAXValueCGPointType) {
-                      AXValueGetValue(_current, kAXValueCGPointType, (void*)&current.origin);
-                }
-                if (abs(current.origin.x - to->origin.x) < APPROX &&
-                    abs(current.origin.y - to->origin.y) < APPROX &&
-                    abs(current.size.width - to->size.width) < APPROX &&
-                    abs(current.size.height - to->size.height) < APPROX) {
-                      to = second;
-                }
-            }
-            CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&to->origin));
-            CFTypeRef _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&to->size));
-            AXUIElementSetAttributeValue(win,(CFStringRef)NSAccessibilityPositionAttribute,_position);
-            AXUIElementSetAttributeValue(win,(CFStringRef)NSAccessibilitySizeAttribute, _size);
+            return win;
         }
     }
+    return NULL;
 }
-- (void) quit:(id) sender {
-    [NSApp terminate:nil];
+NSRect get_window_frame(CFTypeRef win) {
+    CFTypeRef _current;
+    NSRect current = NSZeroRect;
+    
+    if (AXUIElementCopyAttributeValue(win,(CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef*)&_current) == kAXErrorSuccess &&
+        AXValueGetType(_current) == kAXValueCGSizeType){
+        AXValueGetValue(_current, kAXValueCGSizeType, (void*)&current.size);
+    }
+    
+    if (AXUIElementCopyAttributeValue(win,(CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef*)&_current) == kAXErrorSuccess &&
+        AXValueGetType(_current) == kAXValueCGPointType) {
+        AXValueGetValue(_current, kAXValueCGPointType, (void*)&current.origin);
+    }
+    return current;
 }
-
+void set_window_frame(CFTypeRef win,NSRect frame) {
+    CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&frame.origin));
+    CFTypeRef _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&frame.size));
+    AXUIElementSetAttributeValue(win,(CFStringRef)NSAccessibilityPositionAttribute,_position);
+    AXUIElementSetAttributeValue(win,(CFStringRef)NSAccessibilitySizeAttribute, _size);
+}
+NSRect screen_frame_for_window(CFTypeRef win) {
+    NSRect frame = get_window_frame(win);
+    for (NSScreen *s in [NSScreen screens]) {
+        if (NSPointInRect(frame.origin,[s visibleFrame])) {
+            return [s visibleFrame];
+        }
+    }
+    return [[NSScreen mainScreen] visibleFrame];
+}
+void move(int direction) {
+    CFTypeRef win = current_window();
+    if (!win) {
+        NSLog(@"e: couldn't get the current window");
+        return;
+    }
+    NSRect screen_frame = screen_frame_for_window(win);
+    NSRect splitted = split(screen_frame,direction);
+    if (direction == UP) {
+        NSRect current = get_window_frame(win);    
+        if (abs(current.origin.x - splitted.origin.x) < APPROX &&
+            abs(current.origin.y - splitted.origin.y) < APPROX &&
+            abs(current.size.width - splitted.size.width) < APPROX &&
+            abs(current.size.height - splitted.size.height) < APPROX) {
+                set_window_frame(win, screen_frame);
+                return;
+        }
+    }
+    set_window_frame(win, splitted);
+}
 OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unused)
 {
     EventHotKeyID key;
@@ -59,33 +117,12 @@ OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unu
         processed_key *= key.id;
     else
         processed_key = key.id;
-
-    switch (processed_key) {
-        case LEFT:
-            move(&left,NULL);
-            break;
-        case RIGHT:
-            move(&right,NULL);
-            break;
-        case UP:
-            move(&up,&full);
-            break;
-        case DOWN:
-            move(&down,NULL);
-            break;
-        case UP*LEFT:
-            move(&up_left,NULL);
-            break;
-        case UP*RIGHT:
-            move(&up_right,NULL);
-            break;
-        case DOWN*LEFT:
-            move(&down_left,NULL);
-            break;
-        case DOWN*RIGHT:
-            move(&down_right,NULL);
-            break;
-            
+    
+    if (processed_key == LEFT || processed_key == RIGHT ||
+        processed_key == UP || processed_key == DOWN ||
+        processed_key == UP_RIGHT || processed_key == UP_LEFT ||
+        processed_key == DOWN_LEFT || processed_key == DOWN_RIGHT) {
+            move(processed_key);
     }
     processed_stamp = now;
     return noErr;
@@ -107,24 +144,10 @@ OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unu
         RegisterEventHotKey(keys[i], cmdKey+optionKey, kid, GetApplicationEventTarget(), 0, &keyref);
     }
 }
-NSRect split(NSRect f,int position) {
-    switch(position) {
-        case UP:
-            return NSMakeRect(f.origin.x, f.origin.y, f.size.width, f.size.height/2.0f);
-            break;
-        case DOWN:
-            return NSMakeRect(f.origin.x, f.size.height/2.0f, f.size.width, f.size.height/2.0f);
-            break;
-        case LEFT:
-            return NSMakeRect(f.origin.x, f.origin.y, f.size.width/2.0f, f.size.height);
-            break;
-        case RIGHT:
-            return NSMakeRect(f.size.width/2.0f, f.origin.y, f.size.width/2.0f, f.size.height);
-            break;
-            
-    }
-    return NSZeroRect;
+- (void) quit:(id) sender {
+    [NSApp terminate:nil];
 }
+
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
     if(!AXAPIEnabled()){
         [[NSWorkspace sharedWorkspace] openFile:@"/System/Library/PreferencePanes/UniversalAccessPref.prefPane"];
@@ -136,16 +159,6 @@ NSRect split(NSRect f,int position) {
         [alert runModal];
     }
     _axui = AXUIElementCreateSystemWide();
-    full = [[NSScreen mainScreen] frame];
-    up = split(full,UP);
-    down = split(full,DOWN);
-    left = split(full,LEFT);
-    right = split(full,RIGHT);
-    up_left = split(up,LEFT);
-    up_right = split(up,RIGHT);
-    down_left = split(down,LEFT);
-    down_right = split(down,RIGHT);
-
     menu = [[NSMenu alloc] init];
     item = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [menu addItemWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
