@@ -16,20 +16,19 @@
 static AXUIElementRef _axui;
 static unsigned int processed_key = 0;
 static NSTimeInterval processed_stamp = 0;
-
 NSRect split(NSRect f,int position) {
     switch(position) {
         case UP:
             return NSMakeRect(f.origin.x, f.origin.y, f.size.width, f.size.height/2.0f);
             break;
         case DOWN:
-            return NSMakeRect(f.origin.x, f.size.height/2.0f, f.size.width, f.size.height/2.0f);
+            return NSMakeRect(f.origin.x, f.size.height/2.0f + f.origin.y, f.size.width, f.size.height/2.0f);
             break;
         case LEFT:
             return NSMakeRect(f.origin.x, f.origin.y, f.size.width/2.0f, f.size.height);
             break;
         case RIGHT:
-            return NSMakeRect(f.size.width/2.0f, f.origin.y, f.size.width/2.0f, f.size.height);
+            return NSMakeRect(f.size.width/2.0f + f.origin.x, f.origin.y, f.size.width/2.0f, f.size.height);
             break;
         case DOWN_LEFT:
             return split(split(f, DOWN),LEFT);
@@ -82,12 +81,15 @@ void set_window_frame(CFTypeRef win,NSRect frame) {
 NSRect screen_frame_for_window(CFTypeRef win) {
     NSRect frame = get_window_frame(win);
     for (NSScreen *s in [NSScreen screens]) {
-        if (NSPointInRect(frame.origin,[s visibleFrame])) {
-            return [s visibleFrame];
+        CGDirectDisplayID display = (CGDirectDisplayID) [[[s deviceDescription] valueForKey:@"NSScreenNumber"] unsignedIntValue];
+        NSRect screen_frame = NSRectFromCGRect(CGDisplayBounds(display));
+        if (NSPointInRect(frame.origin, screen_frame)) {
+            return screen_frame;
         }
     }
-    return [[NSScreen mainScreen] visibleFrame];
+    return [[NSScreen mainScreen] frame];
 }
+
 void move(int direction) {
     CFTypeRef win = current_window();
     if (!win) {
@@ -98,16 +100,17 @@ void move(int direction) {
     NSRect splitted = split(screen_frame,direction);
     if (direction == UP) {
         NSRect current = get_window_frame(win);    
-        if (abs(current.origin.x - splitted.origin.x) < APPROX &&
-            abs(current.origin.y - splitted.origin.y) < APPROX &&
-            abs(current.size.width - splitted.size.width) < APPROX &&
-            abs(current.size.height - splitted.size.height) < APPROX) {
+        if (fabs(current.origin.x - splitted.origin.x) < APPROX &&
+            fabs(current.origin.y - splitted.origin.y) < APPROX &&
+            fabs(current.size.width - splitted.size.width) < APPROX &&
+            fabs(current.size.height - splitted.size.height) < APPROX) {
                 set_window_frame(win, screen_frame);
                 return;
         }
     }
     set_window_frame(win, splitted);
 }
+
 OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unused)
 {
     EventHotKeyID key;
