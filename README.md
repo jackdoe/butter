@@ -6,7 +6,7 @@ make sure that you have enabled "Settings -> Accessibility -> Enable access for 
 
 ## download && install
 
-+ [download](https://github.com/downloads/jackdoe/butter/butter.zip) (requires MacOSX 1.6 or greater)
++ [download](https://github.com/jackdoe/butter/raw/master/binary-macos-10.6/butter.zip) (requires MacOSX 1.6 or greater)
 + install: just unzip and start :)
 
 ## hotkeys
