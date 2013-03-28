@@ -2,7 +2,7 @@
 
 make sure that you have enabled "Settings -> Accessibility -> Enable access for assistive devices"
 
-![settings](http://img821.imageshack.us/img821/9954/settingswx.png)
+![settings](http://img547.imageshack.us/img547/8071/screenshot20130328at752.png)
 
 ## download && install
 
