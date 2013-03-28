@@ -13,6 +13,9 @@
 #define UP_LEFT (UP * LEFT)
 #define UP_RIGHT (UP * RIGHT)
 #define APPROX 50
+#define START_AT_LOGIN_TEXT @"Start at login"
+#define DO_NOT_START_AT_LOGIN_TEXT @"Do not start at login"
+
 static AXUIElementRef _axui;
 static unsigned int processed_key = 0;
 static NSTimeInterval processed_stamp = 0;
@@ -151,6 +154,79 @@ OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unu
     [NSApp terminate:nil];
 }
 
+
+# pragma mark LOGIN_LIST
+-(void) start_at_login {
+	NSString * appPath = [[NSBundle mainBundle] bundlePath];
+	CFURLRef url = (__bridge CFURLRef)[NSURL fileURLWithPath:appPath];
+	LSSharedFileListRef loginItems = LSSharedFileListCreate(NULL,kLSSharedFileListSessionLoginItems, NULL);
+	if (loginItems) {
+		LSSharedFileListItemRef itemRef = LSSharedFileListInsertItemURL(loginItems,
+                                                                     kLSSharedFileListItemLast, NULL, NULL,
+                                                                     url, NULL, NULL);
+		if (itemRef)
+			CFRelease(itemRef);
+        CFRelease(loginItems);
+	}
+}
+
+-(void) walk_login_list:(BOOL (^) (LSSharedFileListItemRef,CFURLRef)) should_remove {
+	LSSharedFileListRef loginItems = LSSharedFileListCreate(NULL,kLSSharedFileListSessionLoginItems, NULL);
+	if (loginItems) {
+		UInt32 seedValue;
+		CFArrayRef  items = LSSharedFileListCopySnapshot(loginItems, &seedValue);
+        if (items) {
+            for(int i = 0; i < CFArrayGetCount(items); ++i) {
+                LSSharedFileListItemRef itemRef = (LSSharedFileListItemRef)CFArrayGetValueAtIndex(items, i);
+                CFURLRef url = NULL;
+                if (LSSharedFileListItemResolve(itemRef, 0, &url, NULL) == noErr) {
+                    if (should_remove(itemRef,url)) {
+                        LSSharedFileListItemRemove(loginItems,itemRef);
+                    }
+                }
+                CFRelease(url);
+            }
+            CFRelease(items);
+        }
+        CFRelease(loginItems);
+    }
+}
+- (void) do_not_start_at_login {
+	NSString * appPath = [[NSBundle mainBundle] bundlePath];
+    
+    [self walk_login_list:^BOOL(LSSharedFileListItemRef r,CFURLRef url) {
+        NSString * urlPath = [(__bridge NSURL*)url path];
+        if ([urlPath compare:appPath] == NSOrderedSame){
+            return TRUE;
+        }
+        return FALSE;
+    }];
+}
+
+- (BOOL) does_start_at_login {
+	NSString * appPath = [[NSBundle mainBundle] bundlePath];
+    
+    __block BOOL found = FALSE;
+    [self walk_login_list:^BOOL(LSSharedFileListItemRef r,CFURLRef url) {
+        NSString * urlPath = [(__bridge NSURL*)url path];
+        if ([urlPath compare:appPath] == NSOrderedSame){
+            found = TRUE;
+        }
+        return FALSE;
+    }];
+    return found;
+}
+
+- (void) toggle_autostart:(NSMenuItem *) sender {
+    if (![self does_start_at_login]) {
+        [sender setTitle:DO_NOT_START_AT_LOGIN_TEXT];
+        [self start_at_login];
+    } else {
+        [sender setTitle:START_AT_LOGIN_TEXT];
+        [self do_not_start_at_login];
+    }
+}
+
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
     if(!AXAPIEnabled()){
         [[NSWorkspace sharedWorkspace] openFile:@"/System/Library/PreferencePanes/UniversalAccessPref.prefPane"];
@@ -161,9 +237,16 @@ OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unu
                              informativeTextWithFormat:@"Sorry but, in order to use Butter,\nyou will have to enable \"Enable access for assistive devices\" at the bottom left corner of Accessibility Settings\n"];
         [alert runModal];
     }
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"setup_autostart"]) {
+        [self start_at_login];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"setup_autostart"];
+    }
+    BOOL does_start_at_login = [self does_start_at_login];
+
     _axui = AXUIElementCreateSystemWide();
     menu = [[NSMenu alloc] init];
     item = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    [menu addItemWithTitle:(does_start_at_login ? DO_NOT_START_AT_LOGIN_TEXT : START_AT_LOGIN_TEXT) action:@selector(toggle_autostart:) keyEquivalent:@""];
     [menu addItemWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [item setMenu:menu];
     [item setImage:[NSImage imageNamed:@"status-icon"]];
