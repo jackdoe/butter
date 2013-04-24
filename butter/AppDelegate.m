@@ -183,8 +183,8 @@ OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unu
                     if (should_remove(itemRef,url)) {
                         LSSharedFileListItemRemove(loginItems,itemRef);
                     }
+                    CFRelease(url);
                 }
-                CFRelease(url);
             }
             CFRelease(items);
         }
