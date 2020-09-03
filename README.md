@@ -2,7 +2,7 @@
 
 make sure that you have enabled "Settings -> Security & Privacy -> Privacy -> Accessibility"
 
-![settings](https://pasteboard.co/JpoOZhL.png)
+![settings](settings.png)
 
 ## download && install
 
