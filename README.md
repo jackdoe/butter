@@ -1,8 +1,8 @@
 ## requires "Settings -> Accessibility -> Enable access for assistive devices"
 
-make sure that you have enabled "Settings -> Accessibility -> Enable access for assistive devices"
+make sure that you have enabled "Settings -> Security & Privacy -> Privacy -> Accessibility"
 
-![settings](http://img547.imageshack.us/img547/8071/screenshot20130328at752.png)
+![settings](https://pasteboard.co/JpoOZhL.png)
 
 ## download && install
 
