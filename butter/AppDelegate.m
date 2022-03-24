@@ -229,12 +229,12 @@ OSStatus key_down_event(EventHandlerCallRef nextHandler,EventRef event,void *unu
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
     if(!AXAPIEnabled()){
-        [[NSWorkspace sharedWorkspace] openFile:@"/System/Library/PreferencePanes/UniversalAccessPref.prefPane"];
-        NSAlert *alert = [NSAlert alertWithMessageText:@"Settings modification required(bang! unexpected eh?)"
+        [[NSWorkspace sharedWorkspace] openFile:@"/System/Library/PreferencePanes/Security.prefPane"];
+        NSAlert *alert = [NSAlert alertWithMessageText:@"Settings modification required"
                                          defaultButton:@"Quit"
                                        alternateButton:nil
                                            otherButton:nil
-                             informativeTextWithFormat:@"Sorry but, in order to use Butter,\nyou will have to enable \"Enable access for assistive devices\" at the bottom left corner of Accessibility Settings\n"];
+                             informativeTextWithFormat:@"Sorry but, in order to use Butter,\nyou will have to enable it in the\n Security -> Privacy -> Accessibility\n setting in order to be able \nto move the windows around.\n"];
         [alert runModal];
     }
     if (![[NSUserDefaults standardUserDefaults] objectForKey:@"setup_autostart"]) {
